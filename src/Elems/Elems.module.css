@@ -1,0 +1,12 @@
+.elem {
+    width: 150px;
+    height: 150px;
+    border: 2px solid #0DA192;
+    font-size: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.elem:hover {
+    cursor: pointer;
+}
