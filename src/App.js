@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Elems from './Elems/Elems'
+import Saves from './Saves/Saves';
 
 
 let winCombination = [
@@ -17,9 +18,11 @@ let winCombination = [
 function App() {
   let [elems, setElems] = useState(Array(9).fill(null)) //массив ячеек
   let [toggle, setToggle] = useState(true) //переключатель хода
+  let [history, setHistory] = useState([])
 
   function clean(){ //функция очистки
     setElems(Array(9).fill(null))
+    setHistory([])
     setToggle(true)
   }
 
@@ -29,10 +32,13 @@ function App() {
       copy[index] = toggle ? 'X' : 'O';
       setElems(copy)
       setToggle(!toggle)
+
+      
+      setHistory(prevHistory => [...prevHistory, elems.slice()]);
       win()
     }
   }  
-  
+
   function win(){ // проверка на выигрышную комбинацию
       let sumbol = toggle ? 'X' : 'O';
       for(let i = 0; i < winCombination.length; i++ ){
@@ -41,10 +47,15 @@ function App() {
           setTimeout(() => {
             setElems(Array(9).fill(null))
             setToggle(true)
+            setHistory([])
           }, 1000)
         }
       } 
     }
+
+  let checkPoint = (index) => { //переход на сохраненный ход
+    setElems(history[index])
+  }
 
   return (
     <div className='main'>
@@ -53,6 +64,9 @@ function App() {
           <Elems elems={elems} click={click}/>
         </div>
         <div className='footer'>Сейчас ходит: { toggle ? 'X' : 'O'}</div>
+        <div className='history'>
+          <Saves history={history} checkPoint={checkPoint}/>
+        </div>
     </div>
   )
 }
