@@ -18,43 +18,54 @@ let winCombination = [
 function App() {
   let [elems, setElems] = useState(Array(9).fill(null)) //массив ячеек
   let [toggle, setToggle] = useState(true) //переключатель хода
-  let [history, setHistory] = useState([])
+  let [history, setHistory] = useState([]) // массив ходдов(история)
 
-  function clean(){ //функция очистки
+  let [progress, setProgress] = useState(0) // номер хода
+  let [editMode, setEditMode] = useState(false) //режим редактирования, влючается при переходе на предыдущий ход
+
+  const clean = () => { //функция очистки
     setElems(Array(9).fill(null))
     setHistory([])
     setToggle(true)
   }
 
-  function click(index) { //клик по ячейке
+  const click = (index) => { //клик по ячейке 
     if(!elems[index]) {
       let copy = elems;
       copy[index] = toggle ? 'X' : 'O';
       setElems(copy)
       setToggle(!toggle)
-
-      
-      setHistory(prevHistory => [...prevHistory, elems.slice()]);
+      if(editMode) {
+        setHistory(prevHistory => [...prevHistory.slice(0, progress + 1), elems.slice()])
+        setEditMode(false)
+      } else {
+        setHistory(prevHistory => [...prevHistory, elems.slice()]) 
+      }
       win()
-    }
+    } 
   }  
 
-  function win(){ // проверка на выигрышную комбинацию
+  const win = () => { // проверка на выигрышную комбинацию
       let sumbol = toggle ? 'X' : 'O';
       for(let i = 0; i < winCombination.length; i++ ){
         if(elems[winCombination[i][0]] == sumbol && elems[winCombination[i][1]] == sumbol && elems[winCombination[i][2]] == sumbol) {
           alert(`Победил игрок - ${toggle ? 'X' : 'O'}`)
-          setTimeout(() => {
-            setElems(Array(9).fill(null))
-            setToggle(true)
-            setHistory([])
-          }, 1000)
+          setTimeout(() => clean(), 1000)
+          return
         }
-      } 
+      }
+      if(elems.filter(elem => elem == 'X' || elem == 'O').length == 9){ // проверка на Ничью
+        alert('Ничья')
+        setTimeout(() => clean(), 1000)
+      }
     }
 
-  let checkPoint = (index) => { //переход на сохраненный ход
-    setElems(history[index])
+
+  const checkPoint = (index) => { //переход на сохраненный ход
+    setToggle(index % 2 == 1 ? true : false)
+    setProgress(index)
+    setEditMode(true)
+    setElems(history[index].slice())
   }
 
   return (
